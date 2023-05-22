@@ -15,7 +15,7 @@ import (
 var registerCmd = &cobra.Command{
 	Use:   "register",
 	Short: "Register a mDNS service",
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 
 		instance, _ := cmd.Flags().GetString("instance")
 		if instance == "" {
@@ -23,15 +23,12 @@ var registerCmd = &cobra.Command{
 		}
 		port, _ := rootCmd.PersistentFlags().GetInt("port")
 		if port <= 0 {
-			fmt.Println("port number is required")
-			os.Exit(1)
-			return
+			return fmt.Errorf("port number is required")
 		}
 
 		srv, err := zeroconf.Register(instance, "_http._tcp", "local.", port, nil, nil)
 		if err != nil {
-			fmt.Println(err)
-			return
+			return err
 		}
 
 		fmt.Printf("Registered service on _http._tcp (instance=%s port=%d), press Ctrl-C to exit...\n", instance, port)
@@ -46,6 +43,8 @@ var registerCmd = &cobra.Command{
 		}()
 
 		<-done
+
+		return nil
 	},
 }
 

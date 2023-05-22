@@ -16,6 +16,9 @@ var cfgFile string
 var rootCmd = &cobra.Command{
 	Use:   "cli",
 	Short: "client for R700 emulator",
+	CompletionOptions: cobra.CompletionOptions{
+		HiddenDefaultCmd: true,
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
