@@ -11,6 +11,10 @@ import (
 const (
 	DefaultHeader  = 0x35
 	DefaultManager = 759936
+	MaxHeader      = 0xFF
+	MaxManager     = 0xFFFFFFF
+	MaxClass       = 0xFFFFFF
+	MaxSerial      = 0xFFFFFFFFF
 )
 
 type EPC struct {
@@ -51,20 +55,36 @@ func (epc EPC) B64() (string, error) {
 	return b64.String(), nil
 }
 
-func NewEPC(header uint8, manager uint32, class uint32, serial uint64) (EPC, error) {
+func NewEPC(header uint8, manager uint32, class uint32, serial uint64) (*EPC, error) {
 	if header <= 0 {
 		header = DefaultHeader
 	}
+	if header > MaxHeader {
+		return nil, fmt.Errorf("invalid header value")
+	}
+
 	if manager <= 0 {
 		manager = DefaultManager
 	}
+	if manager > MaxManager {
+		return nil, fmt.Errorf("invalid manager value")
+	}
+
 	if class <= 0 {
-		class = uint32(rand.Int31n(99999999))
+		class = uint32(rand.Int31n(MaxClass))
 	}
+	if class > MaxClass {
+		return nil, fmt.Errorf("invalid class value")
+	}
+
 	if serial <= 0 {
-		serial = uint64(rand.Int63n(99999999999))
+		serial = uint64(rand.Int63n(MaxSerial))
 	}
-	return EPC{
+	if serial > MaxSerial {
+		return nil, fmt.Errorf("invalid serial value")
+	}
+
+	return &EPC{
 		Header:  0x35,
 		Manager: manager,
 		Class:   class,
