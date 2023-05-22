@@ -14,7 +14,7 @@ var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "cli",
+	Use:   "r700_cli",
 	Short: "client for R700 emulator",
 	CompletionOptions: cobra.CompletionOptions{
 		HiddenDefaultCmd: true,

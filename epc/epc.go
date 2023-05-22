@@ -1,4 +1,4 @@
-package tools
+package epc
 
 import (
 	"bytes"
@@ -70,4 +70,55 @@ func NewEPC(header uint8, manager uint32, class uint32, serial uint64) (EPC, err
 		Class:   class,
 		Serial:  serial,
 	}, nil
+}
+
+func DecodeHex(hex string) (*EPC, error) {
+	if len(hex) != 24 {
+		return nil, fmt.Errorf("invalid EPC hex length")
+	}
+
+	header, err := strconv.ParseUint(hex[0:2], 16, 8)
+	if err != nil {
+		return nil, err
+	}
+
+	manager, err := strconv.ParseUint(hex[2:9], 16, 32)
+	if err != nil {
+		return nil, err
+	}
+
+	class, err := strconv.ParseUint(hex[9:15], 16, 32)
+	if err != nil {
+		return nil, err
+	}
+
+	serial, err := strconv.ParseUint(hex[15:], 16, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	return &EPC{
+		Header:  uint8(header),
+		Manager: uint32(manager),
+		Class:   uint32(class),
+		Serial:  serial,
+	}, nil
+}
+
+func DecodeB64(b64 string) (*EPC, error) {
+	if len(b64) != 16 {
+		return nil, fmt.Errorf("invalid EPC base64 length")
+	}
+	buf := make([]byte, 12)
+	_, err := base64.NewDecoder(base64.StdEncoding, bytes.NewBufferString(b64)).Read(buf)
+	if err != nil {
+		return nil, err
+	}
+
+	var hex string
+	for _, b := range buf {
+		hex += fmt.Sprintf("%02X", b)
+	}
+
+	return DecodeHex(hex)
 }

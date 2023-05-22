@@ -10,7 +10,7 @@ import (
 // rfidCmd represents the rfid command
 var rfidCmd = &cobra.Command{
 	Use:   "rfid",
-	Short: "RIFD commands",
+	Short: "RFID commands",
 }
 
 func init() {

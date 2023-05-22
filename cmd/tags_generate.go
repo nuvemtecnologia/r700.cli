@@ -4,7 +4,7 @@ Copyright © 2023 Thiago P. Martinez <thiago.martinez@nuvem.net>
 package cmd
 
 import (
-	"cli/tools"
+	"cli/epc"
 	"fmt"
 	"github.com/spf13/cobra"
 )
@@ -31,7 +31,7 @@ var generateCmd = &cobra.Command{
 			return nil
 		}
 
-		epc, err := tools.NewEPC(header, manager, class, serialNumber)
+		epc, err := epc.NewEPC(header, manager, class, serialNumber)
 		if err != nil {
 			return err
 		}
