@@ -4,6 +4,7 @@ Copyright © 2023 Thiago P. Martinez <thiago.martinez@nuvem.net>
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -58,4 +59,16 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	_ = viper.ReadInConfig()
+}
+
+func apiBaseURL() (string, error) {
+	host, _ := rootCmd.PersistentFlags().GetString("hostname")
+	port, _ := rootCmd.PersistentFlags().GetInt("port")
+	if host == "" {
+		return "", fmt.Errorf("hostname must be provided")
+	}
+	if port <= 0 {
+		return "", fmt.Errorf("port number must be provided")
+	}
+	return fmt.Sprintf("http://%s:%d/api/v1", host, port), nil
 }

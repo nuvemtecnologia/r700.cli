@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"bytes"
+	epc_tools "cli/epc"
 	"cli/model"
 	"encoding/json"
 	"fmt"
@@ -21,22 +22,24 @@ var submitCmd = &cobra.Command{
 	SilenceUsage:          true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 
-		host, _ := rootCmd.PersistentFlags().GetString("hostname")
-		port, _ := rootCmd.PersistentFlags().GetInt("port")
-		if host == "" {
-			return fmt.Errorf("hostname must be provided")
+		base, err := apiBaseURL()
+		if err != nil {
+			return err
 		}
-		if port <= 0 {
-			return fmt.Errorf("port number must be provided")
-		}
-		url := fmt.Sprintf("http://%s:%d/api/v1/commands/rfid/submit", host, port)
+		url := fmt.Sprintf("%s/commands/rfid/submit", base)
 		if p, _ := cmd.Flags().GetBool("print-endpoint"); p {
 			fmt.Println(url)
 			return nil
 		}
 
 		for _, epc := range args {
-			body := model.NewTagEvent(epc)
+
+			tag, err := epc_tools.DecodeHex(epc)
+			if err != nil {
+				return fmt.Errorf("invalid EPC: %s", epc)
+			}
+
+			body := model.NewTagEvent(*tag)
 			buf := new(bytes.Buffer)
 			_ = json.NewEncoder(buf).Encode(body)
 
@@ -46,7 +49,7 @@ var submitCmd = &cobra.Command{
 
 			req, _ := http.NewRequest("POST", url, buf)
 			client := &http.Client{}
-			_, err := client.Do(req)
+			_, err = client.Do(req)
 			if err != nil {
 				return err
 			}

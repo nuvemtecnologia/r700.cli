@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"cli/epc"
+	"time"
+)
 
 type TagEvent struct {
 	Timestamp         time.Time         `json:"timestamp"`
@@ -16,13 +19,19 @@ type TagInventoryEvent struct {
 	AntennaName string `json:"antennaName"`
 }
 
-func NewTagEvent(epc string) TagEvent {
+func NewTagEvent(epc epc.EPC) TagEvent {
+	b64, err := epc.B64()
+	if err != nil {
+		b64 = ""
+	}
+
 	return TagEvent{
 		Timestamp: time.Now(),
+		Hostname:  "r700-emulator",
 		EventType: "TagInventoryEvent",
 		TagInventoryEvent: TagInventoryEvent{
-			Epc:         epc,
-			EpcHex:      epc,
+			Epc:         b64,
+			EpcHex:      epc.Hex(),
 			AntennaPort: 1,
 			AntennaName: "Antenna 1",
 		},
