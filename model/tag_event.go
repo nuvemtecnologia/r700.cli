@@ -26,7 +26,7 @@ func NewTagEvent(epc epc.EPC) TagEvent {
 	}
 
 	return TagEvent{
-		Timestamp: time.Now(),
+		Timestamp: time.Now().In(time.UTC),
 		Hostname:  "r700-emulator",
 		EventType: "TagInventoryEvent",
 		TagInventoryEvent: TagInventoryEvent{
