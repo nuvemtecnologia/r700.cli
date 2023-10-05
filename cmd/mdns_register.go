@@ -26,7 +26,7 @@ var registerCmd = &cobra.Command{
 			return fmt.Errorf("port number is required")
 		}
 
-		srv, err := zeroconf.Register(instance, "_http._tcp", "local.", port, nil, nil)
+		srv, err := zeroconf.Register(instance, "_piranha._tcp", "local.", port, nil, nil)
 		if err != nil {
 			return err
 		}

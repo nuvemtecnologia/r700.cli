@@ -18,6 +18,8 @@ var printHex bool
 var printB64 bool
 var printTagUri bool
 var printPureIdentityUri bool
+var times uint32
+var inline bool
 
 // generateCmd represents the generate command
 var generateCmd = &cobra.Command{
@@ -31,36 +33,50 @@ var generateCmd = &cobra.Command{
 			return nil
 		}
 
-		epc, err := epc.NewEPC(header, manager, class, serialNumber)
-		if err != nil {
-			return err
-		}
-
-		if printPureIdentityUri {
-			fmt.Println(epc.PureIdentityURI())
-			return nil
-		}
-
-		if printTagUri {
-			fmt.Println(epc.TagURI())
-			return nil
-		}
-
-		if printB64 {
-			b64, err := epc.B64()
+		for i := uint32(0); i < times; i++ {
+			epc, err := epc.NewEPC(header, manager, class, serialNumber)
 			if err != nil {
 				return err
 			}
-			fmt.Println(b64)
-			return nil
+
+			if i > 0 {
+				if inline {
+					fmt.Printf(" ")
+				} else {
+					fmt.Println()
+				}
+			}
+
+			if printPureIdentityUri {
+				fmt.Printf(epc.PureIdentityURI())
+				continue
+			}
+
+			if printTagUri {
+				fmt.Printf(epc.TagURI())
+				continue
+			}
+
+			if printB64 {
+				b64, err := epc.B64()
+				if err != nil {
+					return err
+				}
+				fmt.Printf(b64)
+				continue
+			}
+
+			if printHex {
+				fmt.Printf(epc.Hex())
+				continue
+			}
+
+			return fmt.Errorf("no output format specified")
 		}
 
-		if printHex {
-			fmt.Println(epc.Hex())
-			return nil
-		}
+		fmt.Println()
 
-		return fmt.Errorf("no output format specified")
+		return nil
 	},
 }
 
@@ -75,4 +91,6 @@ func init() {
 	generateCmd.Flags().BoolVar(&printB64, "b64", false, "print base64 representation of generated tag")
 	generateCmd.Flags().BoolVar(&printPureIdentityUri, "identity-uri", false, "print pure identity uri")
 	generateCmd.Flags().BoolVar(&printDocs, "docs", false, "print documentation")
+	generateCmd.Flags().Uint32VarP(&times, "times", "t", 1, "number of tags to generate")
+	generateCmd.Flags().BoolVar(&inline, "inline", false, "print output in a single line")
 }
